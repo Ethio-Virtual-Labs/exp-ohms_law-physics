@@ -1,0 +1,65 @@
+name: Multi-Stage Deployment
+on: 
+ push: 
+   branches: 
+- dev 
+- test 
+- uat 
+- main 
+pull_request: 
+branches: 
+- dev 
+- test 
+- uat 
+- main
+jobs: 
+pre-check: 
+runs-on: ubuntu-latest 
+steps: 
+- uses: actions/checkout@v3 
+- name: Set up Node.js 
+uses: actions/setup-node@v3
+with: 
+node-version: '16' 
+- name: Install dependencies 
+run: npm install 
+- name: Run tests 
+run: npm test 
+- name: Lint code 
+run: npm run lint 
+deploy-dev: 
+needs: pre-check 
+if: github.ref == 'refs/heads/dev' 
+runs-on: ubuntu-latest 
+environment: development 
+steps: 
+- uses: actions/checkout@v3 
+- name: Deploy to Development 
+run: echo "Deploying to Development environment" 
+deploy-test: 
+needs: pre-check 
+if: github.ref == 'refs/heads/test' 
+runs-on: ubuntu-latest 
+environment: testing 
+steps: 
+- uses: actions/checkout@v3 
+- name: Deploy to Testing 
+run: echo "Deploying to Testing environment" 
+deploy-uat: 
+needs: pre-check 
+if: github.ref == 'refs/heads/uat' 
+runs-on: ubuntu-latest
+environment: uat 
+steps: 
+- uses: actions/checkout@v3 
+- name: Deploy to UAT 
+run: echo "Deploying to UAT environment" 
+deploy-prod: 
+needs: pre-check 
+if: github.ref == 'refs/heads/main' 
+runs-on: ubuntu-latest 
+environment: production 
+steps: 
+- uses: actions/checkout@v3 
+- name: Deploy to Production 
+run: echo "Deploying to Production environment"
